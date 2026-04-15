@@ -1,0 +1,403 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,system-ui);color:var(--color-text-primary)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.dash{padding:1.5rem 0;display:flex;flex-direction:column;gap:2rem}
+.section-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:.5rem}
+.section-title{font-size:18px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary)}
+
+.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:.75rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center}
+.metric-val{font-size:26px;font-weight:500;line-height:1.1}
+.metric-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.4}
+
+.pill{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin:2px}
+.pill-p{background:#EEEDFE;color:#3C3489}
+.pill-t{background:#E1F5EE;color:#085041}
+.pill-a{background:#FAEEDA;color:#633806}
+.pill-c{background:#FAECE7;color:#712B13}
+.pill-g{background:#EAF3DE;color:#27500A}
+.pill-r{background:#FCEBEB;color:#791F1F}
+
+.nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.nav-btn{font-size:13px;padding:6px 14px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:background .15s,color .15s}
+.nav-btn.active,.nav-btn:hover{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+
+.section-panel{display:none}
+.section-panel.visible{display:block}
+
+.bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:13px;color:var(--color-text-secondary);min-width:160px;text-align:right}
+.bar-track{flex:1;height:20px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);overflow:hidden}
+.bar-fill{height:100%;border-radius:var(--border-radius-md);transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-pct{font-size:12px;font-weight:500;min-width:36px;color:var(--color-text-secondary)}
+
+.seg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin-top:.75rem}
+.seg-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;cursor:pointer;transition:border-color .2s}
+.seg-card.sel{border-width:2px}
+.seg-card .seg-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.seg-card .seg-sub{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.seg-detail{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;margin-top:.75rem;font-size:13px;color:var(--color-text-secondary);line-height:1.7;min-height:80px}
+
+.opp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem}
+.opp-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;position:relative;overflow:hidden}
+.opp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.opp-p::before{background:#534AB7}
+.opp-t::before{background:#0F6E56}
+.opp-a::before{background:#854F0B}
+.opp-c::before{background:#993C1D}
+.opp-g::before{background:#3B6D11}
+.opp-title{font-size:13px;font-weight:500;margin-bottom:6px;margin-top:2px}
+.opp-body{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.opp-score{font-size:22px;font-weight:500;float:right;margin-left:8px}
+
+.feat-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.feat-row:last-child{border-bottom:none}
+.feat-num{font-size:13px;font-weight:500;min-width:28px;color:var(--color-text-tertiary)}
+.feat-name{font-size:14px;font-weight:500;flex:1}
+.feat-desc{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.prio-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.prio-must{background:#FAECE7;color:#712B13}
+.prio-should{background:#FAEEDA;color:#633806}
+.prio-could{background:#EAF3DE;color:#27500A}
+
+.risk-row{display:flex;gap:12px;padding:12px 0;border-bottom:.5px solid var(--color-border-tertiary);align-items:flex-start}
+.risk-row:last-child{border-bottom:none}
+.risk-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.risk-high{background:#E24B4A}
+.risk-med{background:#EF9F27}
+.risk-low{background:#639922}
+.risk-content{flex:1}
+.risk-title{font-size:14px;font-weight:500;margin-bottom:2px}
+.risk-body{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.risk-mit{display:inline-block;font-size:11px;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+
+.rec-box{background:var(--color-background-primary);border:2px solid #534AB7;border-radius:var(--border-radius-lg);padding:1.25rem}
+.rec-title{font-size:16px;font-weight:500;color:#3C3489;margin-bottom:.5rem}
+.rec-body{font-size:14px;color:var(--color-text-secondary);line-height:1.7}
+.rec-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-top:1rem}
+.rec-pillar{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.875rem;text-align:center}
+.rec-pillar-num{font-size:28px;font-weight:500;color:#534AB7}
+.rec-pillar-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+
+.timeline{position:relative;padding-left:24px;margin-top:.75rem}
+.timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:1.5px;background:var(--color-border-tertiary)}
+.tl-item{position:relative;margin-bottom:1.25rem;padding-left:1rem}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:#534AB7;border:2px solid var(--color-background-primary)}
+.tl-phase{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#534AB7;margin-bottom:2px}
+.tl-action{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.tl-detail{font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin-top:2px}
+
+.divider{border:none;border-top:.5px solid var(--color-border-tertiary);margin:1.5rem 0}
+</style>
+
+<h2 class="sr-only">GMA research dashboard: interactive overview of Game Master Assistant research findings including user segments, pain points, market opportunities, feature priorities, risks, and MVP recommendation.</h2>
+
+<div class="dash">
+
+<div class="card" style="border-left:4px solid #534AB7;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+    <div>
+      <div class="section-label">Research brief</div>
+      <div style="font-size:22px;font-weight:500;color:#3C3489;margin-bottom:4px">Game Master Assistant (GMA)</div>
+      <div style="font-size:14px;color:var(--color-text-secondary);max-width:560px;line-height:1.6">A web tool that generates lore-accurate combat encounters — enemies, difficulty rating, and tactical map — for tabletop RPG Game Masters in under 5 minutes. Targets D&D 2024 and Pathfinder 2e.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+      <span class="pill pill-p">Phase 1 complete</span>
+      <span class="pill pill-t">55 sources</span>
+      <span style="font-size:12px;color:var(--color-text-tertiary)">April 2026</span>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="card-grid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="metric"><div class="metric-val" style="color:#534AB7">~$1.9B</div><div class="metric-lbl">TTRPG market (2024)</div></div>
+    <div class="metric"><div class="metric-val" style="color:#0F6E56">50M+</div><div class="metric-lbl">Active players worldwide</div></div>
+    <div class="metric"><div class="metric-val" style="color:#854F0B">1–3 hrs</div><div class="metric-lbl">Avg. GM prep per session</div></div>
+    <div class="metric"><div class="metric-val" style="color:#993C1D">42%</div><div class="metric-lbl">New players deterred by complexity</div></div>
+    <div class="metric"><div class="metric-val" style="color:#3B6D11">27%</div><div class="metric-lbl">Players want AI GM tools</div></div>
+  </div>
+</div>
+
+<nav class="nav" aria-label="Dashboard sections">
+  <button class="nav-btn active" onclick="showSection('pain')">Pain points</button>
+  <button class="nav-btn" onclick="showSection('users')">User segments</button>
+  <button class="nav-btn" onclick="showSection('opp')">Opportunity map</button>
+  <button class="nav-btn" onclick="showSection('features')">Feature priorities</button>
+  <button class="nav-btn" onclick="showSection('risks')">Risks</button>
+  <button class="nav-btn" onclick="showSection('rec')">MVP recommendation</button>
+</nav>
+
+<div id="pain" class="section-panel visible">
+  <div class="section-label">Theme 1</div>
+  <div class="section-title">Top user pain points</div>
+  <div class="card" style="margin-bottom:.75rem">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6">Each bar shows the intensity of each pain point based on frequency of mention across 55 research sources, community forums, expert analysis, and user reviews.</div>
+    <div id="painBars"></div>
+  </div>
+  <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(0,1fr))">
+    <div class="card" style="border-top:3px solid #993C1D;border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">The maths problem</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">D&D 2024 removed encounter multipliers and pacing guidance. PF2e uses a creature-level XP system. Both require knowing the formula — and applying it wrong produces encounters that accidentally kill or bore players.</div>
+    </div>
+    <div class="card" style="border-top:3px solid #534AB7;border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">The lore problem</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">Knowing which creatures belong in which biome, faction, and environment requires years of accumulated system knowledge. No current encounter tool filters by lore — only by CR or creature level.</div>
+    </div>
+    <div class="card" style="border-top:3px solid #854F0B;border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">The map problem</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">Creating a tactical grid map requires a separate tool (Inkarnate, Dungeondraft) with its own learning curve and subscription. GMs who skip maps report consistently worse combat experiences.</div>
+    </div>
+    <div class="card" style="border-top:3px solid #0F6E56;border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">The fragmentation problem</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">GMs currently switch between 3–5 tools to produce one encounter: balance calculator, monster reference, map maker, notes app. Every tool switch breaks prep flow and adds time.</div>
+    </div>
+  </div>
+</div>
+
+<div id="users" class="section-panel">
+  <div class="section-label">Theme 2</div>
+  <div class="section-title">User segments — who suffers most</div>
+  <div id="segDetail" class="seg-detail">Click a segment card to learn more about that user type.</div>
+  <div class="seg-grid" id="segGrid"></div>
+  <div style="margin-top:1rem">
+    <div style="font-size:13px;font-weight:500;margin-bottom:.5rem">Shared characteristic</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;background:var(--color-background-secondary);padding:.875rem;border-radius:var(--border-radius-md)">All three segments are competent storytellers who are being held back by technical preparation requirements that have nothing to do with the quality of the game they want to run. The problem is not creativity — it is tooling.</div>
+  </div>
+</div>
+
+<div id="opp" class="section-panel">
+  <div class="section-label">Theme 3</div>
+  <div class="section-title">Opportunity map — where competitors stop</div>
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6">The market is divided into three categories: math calculators, map makers, and VTTs. No product operates at the intersection of all three. Opportunity score = gap × market reach (1–10 scale).</div>
+  <div class="opp-grid" id="oppGrid"></div>
+  <hr class="divider">
+  <div style="background:#EEEDFE;border-radius:var(--border-radius-md);padding:1rem;margin-top:.5rem">
+    <div style="font-size:13px;font-weight:500;color:#3C3489;margin-bottom:4px">The integration gap</div>
+    <div style="font-size:13px;color:#534AB7;line-height:1.6">GMs currently need 3–5 separate tools to produce one complete encounter. No product connects them. GMA is that connection — and it enters the market at the exact moment the previous category leader (Kobold Fight Club) went permanently offline.</div>
+  </div>
+</div>
+
+<div id="features" class="section-panel">
+  <div class="section-label">Theme 4</div>
+  <div class="section-title">Feature priority chart — MVP vs post-MVP</div>
+  <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap">
+    <span class="prio-badge prio-must">Must Have</span><span style="font-size:12px;color:var(--color-text-secondary);align-self:center">core value cannot function without it</span>
+    <span class="prio-badge prio-should" style="margin-left:.5rem">Should Have</span><span style="font-size:12px;color:var(--color-text-secondary);align-self:center">significantly improves trust & quality</span>
+    <span class="prio-badge prio-could" style="margin-left:.5rem">Could Have</span><span style="font-size:12px;color:var(--color-text-secondary);align-self:center">enhances experience post-MVP</span>
+  </div>
+  <div class="card">
+    <div id="featList"></div>
+  </div>
+  <div style="margin-top:1rem">
+    <div class="section-label">Impact vs effort view</div>
+    <div style="position:relative;height:260px">
+      <canvas id="bubbleChart" role="img" aria-label="Bubble chart showing feature impact versus implementation effort. Lore engine and rules engine have highest impact. Map generation has high impact and medium-high effort.">Feature priorities by impact and effort: Rules engine (impact 10, effort 7), Lore generation (impact 9, effort 8), Map generation (impact 8, effort 9), Difficulty label (impact 9, effort 4), Input form (impact 8, effort 2), Swap controls (impact 7, effort 3), Summary card (impact 6, effort 4).</canvas>
+    </div>
+  </div>
+</div>
+
+<div id="risks" class="section-panel">
+  <div class="section-label">Theme 5</div>
+  <div class="section-title">Risk panel</div>
+  <div class="card" style="margin-bottom:.75rem">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">Risk distribution across seven identified categories. The first three are pre-development decisions.</div>
+    <div style="position:relative;height:200px">
+      <canvas id="riskChart" role="img" aria-label="Horizontal bar chart showing risk severity. IP/Legal: High. AI hallucination: High. Balance accuracy: High. Map quality: Medium. Scope creep: Medium. Data staleness: Medium. Community AI resistance: Low.">Risk severity: IP/Legal High, AI Hallucination High, Balance Accuracy High, Map Quality Medium, Scope Creep Medium, Data Staleness Medium, Community Resistance Low.</canvas>
+    </div>
+  </div>
+  <div class="card" id="riskList"></div>
+</div>
+
+<div id="rec" class="section-panel">
+  <div class="section-label">Final recommendation</div>
+  <div class="section-title">MVP direction</div>
+
+  <div class="rec-box">
+    <div class="rec-title">Integrated pre-session encounter generator</div>
+    <div class="rec-body">Build a single, fast, free-to-use tool that combines lore-accurate enemy generation, programmatic difficulty validation, and auto-generated tactical maps — supporting both D&D 2024 and Pathfinder 2e at launch. No account required for the first generation. The GM should be able to arrive with nothing and leave with a complete, playable encounter in under five minutes.</div>
+    <div class="rec-pillars">
+      <div class="rec-pillar"><div class="rec-pillar-num">3</div><div class="rec-pillar-lbl">Core pillars: lore + balance + map</div></div>
+      <div class="rec-pillar"><div class="rec-pillar-num">2</div><div class="rec-pillar-lbl">Systems at launch: D&D 2024 + PF2e</div></div>
+      <div class="rec-pillar"><div class="rec-pillar-num">&lt;5</div><div class="rec-pillar-lbl">Minutes to a complete encounter</div></div>
+      <div class="rec-pillar"><div class="rec-pillar-num">0</div><div class="rec-pillar-lbl">Account required for first use</div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label" style="margin-top:0">Why this direction is strongest</div>
+
+  <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:.5rem">
+    <div class="card"><div class="pill pill-c" style="margin-bottom:8px">Pain points</div><div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5">Every pain point — maths, lore, maps, fragmentation — is solved by the integration of these three pillars in one workflow.</div></div>
+    <div class="card"><div class="pill pill-a" style="margin-bottom:8px">Trust barriers</div><div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5">Programmatic rules engine + lore rationale + simplicity-first UX directly addresses all four identified trust barriers.</div></div>
+    <div class="card"><div class="pill pill-p" style="margin-bottom:8px">Feature expectations</div><div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5">GMs want a scene (not a list), a connected map, and swap controls. All are in this direction.</div></div>
+    <div class="card"><div class="pill pill-t" style="margin-bottom:8px">Market gap</div><div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5">No current tool offers this combination. KFC went offline late 2024. PF2e has 1.5M new adopters with no integrated tool. The gap is real and active.</div></div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">Build sequence</div>
+  <div class="timeline" id="timeline" style="margin-top:.75rem"></div>
+
+  <hr class="divider">
+  <div style="background:#E1F5EE;border-radius:var(--border-radius-md);padding:1rem">
+    <div style="font-size:13px;font-weight:500;color:#085041;margin-bottom:4px">Recommended immediate action</div>
+    <div style="font-size:13px;color:#0F6E56;line-height:1.6">Start with the PF2e rules engine. PF2e is legally safer (ORC licence), has a free complete data source (Archives of Nethys), and its encounter design system is more precisely defined. A validated PF2e encounter generator is a fully functional product for 1.5 million remastered adopters — and it builds the technical foundation that D&D 2024 support will extend.</div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const PURPLE="#534AB7",TEAL="#0F6E56",AMBER="#854F0B",CORAL="#993C1D",GREEN="#3B6D11",BLUE="#185FA5";
+const LP="#EEEDFE",LT="#E1F5EE",LA="#FAEEDA",LC="#FAECE7",LG="#EAF3DE";
+
+function showSection(id){
+  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('visible'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('visible');
+  event.target.classList.add('active');
+}
+
+const painData=[
+  {label:"Tool fragmentation (3–5 tools per session)",pct:95,color:TEAL},
+  {label:"Encounter math opacity & errors",pct:88,color:CORAL},
+  {label:"Lore accuracy requires deep knowledge",pct:82,color:PURPLE},
+  {label:"Map creation is a separate skill",pct:79,color:AMBER},
+  {label:"Prep time 1–3 hrs per session",pct:76,color:GREEN},
+  {label:"AI hallucination in rules/lore contexts",pct:64,color:"#993556"},
+  {label:"No pacing guidance post-2024 DMG",pct:58,color:"#185FA5"},
+];
+const pb=document.getElementById('painBars');
+painData.forEach(d=>{
+  pb.innerHTML+=`<div class="bar-wrap"><div class="bar-label">${d.label}</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:${d.color}" data-w="${d.pct}"></div></div><div class="bar-pct">${d.pct}%</div></div>`;
+});
+setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.w+'%'),100);
+
+const segments=[
+  {title:"New GM",sub:"0–2 years running games",color:PURPLE,selColor:"#AFA9EC",detail:"Inspired by actual-play media (Critical Role, etc.). Has played as a player, now trying to run. Overwhelmed by the simultaneous demands of rules knowledge, lore accuracy, encounter math, and map prep. Highest drop-off risk — a bad first session can end their GMing journey. Most open to AI-assisted tooling. Demographic skews 18–35. Need: guided, fast output with no prior knowledge required."},
+  {title:"Busy experienced GM",sub:"3–10+ years, time-constrained",color:TEAL,selColor:"#9FE1CB",detail:"Knows the systems well but has less prep time due to work and life. Runs weekly or fortnightly sessions and suffers preparation burnout around combat design. Has strong opinions about what 'correct' looks like and will verify the tool's output. Most likely to convert to a paid tier. Demographic skews 25–44. Need: fast, high-quality, customisable output they can trust without starting from scratch."},
+  {title:"System-switcher",sub:"Moving between D&D and PF2e",color:AMBER,selColor:"#FAC775",detail:"Confident in one system but moving to another. Strong in narrative but unfamiliar with the new system's encounter rules and creature lore. A fast-growing segment: 1.5 million players adopted PF2e Remastered within six months of 2024 launch. Need: system-accurate output they can trust without having to verify against an unfamiliar rulebook."},
+];
+const sg=document.getElementById('segGrid');
+const sd=document.getElementById('segDetail');
+segments.forEach((s,i)=>{
+  const c=document.createElement('div');
+  c.className='seg-card';
+  c.style.borderColor=s.selColor;
+  c.innerHTML=`<div style="width:10px;height:10px;border-radius:50%;background:${s.color};margin-bottom:8px"></div><div class="seg-title">${s.title}</div><div class="seg-sub">${s.sub}</div>`;
+  c.onclick=()=>{
+    document.querySelectorAll('.seg-card').forEach(x=>{x.classList.remove('sel');x.style.borderWidth='0.5px'});
+    c.classList.add('sel');c.style.borderWidth='2px';
+    sd.textContent=s.detail;
+  };
+  sg.appendChild(c);
+});
+
+const opps=[
+  {title:"Lore-accurate enemy selection",score:"9.4",body:"No tool filters monsters by lore appropriateness. Huge gap. High GM demand. Low competitive response.",cls:"opp-p"},
+  {title:"D&D 2024 encounter balance",score:"9.1",body:"KFC went offline late 2024. No well-designed free D&D 2024 encounter builder currently exists. Active unmet need.",cls:"opp-t"},
+  {title:"PF2e multi-system support",score:"8.7",body:"PF2e adopted 1.5M players in 6 months. No tool covers both PF2e and D&D. Prep n' Pray is PF2e-only.",cls:"opp-a"},
+  {title:"Integrated tactical map",score:"8.3",body:"GMs want a map tied to the encounter, not a separate tool. Every competitor leaves this step to the GM.",cls:"opp-c"},
+  {title:"Lore education through rationale",score:"7.6",body:"Showing GMs why an enemy group makes sense teaches them the lore. No current tool does this. Low cost to build, high value to new GMs.",cls:"opp-g"},
+];
+const og=document.getElementById('oppGrid');
+opps.forEach(o=>{
+  og.innerHTML+=`<div class="opp-card ${o.cls}"><div class="opp-score" style="color:${o.cls.includes('p')?PURPLE:o.cls.includes('t')?TEAL:o.cls.includes('a')?AMBER:o.cls.includes('c')?CORAL:GREEN}">${o.score}</div><div class="opp-title">${o.title}</div><div class="opp-body">${o.body}</div></div>`;
+});
+
+const features=[
+  {num:"01",name:"Party input form",prio:"must",desc:"System, party size, levels, class composition, difficulty tier. Under 60 seconds. No account required."},
+  {num:"02",name:"Environment and context selector",prio:"must",desc:"Select or describe the encounter environment. Drives both enemy selection and map biome generation."},
+  {num:"03",name:"Lore-accurate enemy group generation",prio:"must",desc:"2–6 enemies with roles (minion/elite/boss) and a lore rationale explaining why this group is here."},
+  {num:"04",name:"Programmatic difficulty validation",prio:"must",desc:"Deterministic rules-engine calculation — not AI-estimated. Shows XP breakdown and difficulty label."},
+  {num:"05",name:"Auto-generated tactical grid map",prio:"must",desc:"Top-down grid map matching the environment. Functional and printable. Accuracy before aesthetics."},
+  {num:"06",name:"Regenerate and swap controls",prio:"must",desc:"Regenerate full group, swap individual enemy, or adjust difficulty without restarting. GM stays in control."},
+  {num:"07",name:"GM encounter summary card",prio:"should",desc:"Single exportable output: enemy list, map thumbnail, difficulty label, scene-setter text. One artefact per encounter."},
+  {num:"08",name:"Internal rules engine (both systems)",prio:"must",desc:"Updateable database of D&D 2024 and PF2e formulas, XP values, and creature lore/habitat data."},
+];
+const fl=document.getElementById('featList');
+features.forEach(f=>{
+  const bc=f.prio==='must'?'prio-must':f.prio==='should'?'prio-should':'prio-could';
+  const bt=f.prio==='must'?'Must Have':f.prio==='should'?'Should Have':'Could Have';
+  fl.innerHTML+=`<div class="feat-row"><div class="feat-num">${f.num}</div><div style="flex:1"><div class="feat-name">${f.name}</div><div class="feat-desc">${f.desc}</div></div><span class="prio-badge ${bc}">${bt}</span></div>`;
+});
+
+new Chart(document.getElementById('bubbleChart'),{
+  type:'bubble',
+  data:{datasets:[
+    {label:'Must Have',data:[
+      {x:7,y:10,r:16,name:"Rules engine"},{x:8,y:9,r:15,name:"Lore generation"},
+      {x:9,y:8,r:14,name:"Map generation"},{x:4,y:9,r:13,name:"Difficulty label"},
+      {x:2,y:8,r:11,name:"Input form"},{x:3,y:7,r:10,name:"Swap controls"}
+    ],backgroundColor:'rgba(83,74,183,0.25)',borderColor:PURPLE,borderWidth:1.5},
+    {label:'Should Have',data:[
+      {x:4,y:6,r:9,name:"Summary card"}
+    ],backgroundColor:'rgba(15,110,86,0.25)',borderColor:TEAL,borderWidth:1.5}
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.name} — Impact ${ctx.raw.y}/10, Effort ${ctx.raw.x}/10`}}},
+    scales:{
+      x:{title:{display:true,text:'Implementation effort →',font:{size:11}},min:0,max:11,grid:{color:'rgba(128,128,128,0.1)'},ticks:{font:{size:11}}},
+      y:{title:{display:true,text:'User impact →',font:{size:11}},min:0,max:11,grid:{color:'rgba(128,128,128,0.1)'},ticks:{font:{size:11}}}
+    }
+  }
+});
+
+const riskSeverity={High:3,Medium:2,Low:1};
+const riskItems=[
+  {level:"High",name:"IP & legal exposure (D&D)",body:"WotC/Hasbro copyright covers content beyond the SRD. The 2023 OGL crisis showed active enforcement.",mit:"Reference & link — never reproduce stat blocks. PF2e is lower-risk under ORC licence."},
+  {level:"High",name:"AI lore hallucination",body:"Academic research (ACL 2025) confirms LLMs produce wrong D&D lore answers even with good prompts.",mit:"Ground all generation in a verified rules database. AI writes language; database determines what is permitted."},
+  {level:"High",name:"Balance calculation inaccuracy",body:"Community experts catch encounter math errors within days. One wrong 'Easy' rating destroys credibility.",mit:"Rules engine must be deterministic, validated against SlyFlourish, RPGBOT, and official examples before launch."},
+  {level:"Medium",name:"Map quality below expectations",body:"GMs compare to Inkarnate. A poor map damages the product more than having no map.",mit:"Present MVP map honestly as a functional tactical surface. Functional accuracy before visual polish."},
+  {level:"Medium",name:"Scope creep into VTT territory",body:"User requests will include initiative, dice, live session tools — direct competition with Roll20.",mit:"Enforce 'pre-session only' as a product principle. Ask 'is this prep or play?' for every feature request."},
+  {level:"Medium",name:"Outdated rules and monster data",body:"Both systems receive errata and new creatures regularly. Stale data produces wrong encounters.",mit:"Architect the rules database as a separate, updateable content layer independent of the application code."},
+  {level:"Low",name:"Community AI resistance",body:"A vocal segment views AI in creative tools as threatening craft and livelihoods.",mit:"Position GMA as creative accelerator. Swap/tweak/regenerate controls signal GM authorship at every step."},
+];
+const rl=document.getElementById('riskList');
+riskItems.forEach(r=>{
+  const dc=r.level==='High'?'risk-high':r.level==='Medium'?'risk-med':'risk-low';
+  rl.innerHTML+=`<div class="risk-row"><div class="risk-dot ${dc}"></div><div class="risk-content"><div class="risk-title">${r.name}</div><div class="risk-body">${r.body}</div><span class="risk-mit">Mitigation: ${r.mit}</span></div></div>`;
+});
+
+new Chart(document.getElementById('riskChart'),{
+  type:'bar',
+  data:{
+    labels:riskItems.map(r=>r.name),
+    datasets:[{
+      label:'Risk level',
+      data:riskItems.map(r=>riskSeverity[r.level]),
+      backgroundColor:riskItems.map(r=>r.level==='High'?'rgba(226,75,74,0.35)':r.level==='Medium'?'rgba(239,159,39,0.35)':'rgba(99,153,34,0.35)'),
+      borderColor:riskItems.map(r=>r.level==='High'?'#E24B4A':r.level==='Medium'?'#EF9F27':'#639922'),
+      borderWidth:1.5,borderRadius:4
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>['','Low','Medium','High'][ctx.raw]+' risk'}}},
+    scales:{
+      x:{display:false,min:0,max:3.5},
+      y:{ticks:{font:{size:11}},grid:{display:false}}
+    }
+  }
+});
+
+const steps=[
+  {phase:"2A",action:"Legal review of D&D content strategy",detail:"Determine SRD boundary vs proprietary content. Establish the reference-and-link approach before any monster data is sourced."},
+  {phase:"2B",action:"Build & validate PF2e rules engine (start here)",detail:"PF2e is legally safer. Build the creature-level XP budget calculator, validate against 10–20 known examples from Archives of Nethys."},
+  {phase:"2C",action:"Build & validate D&D 2024 rules engine",detail:"Implement the three-tier XP budget. Cross-validate against SlyFlourish and RPGBOT expert benchmarks."},
+  {phase:"2D",action:"Prototype lore knowledge base (PF2e first)",detail:"Source creature habitat and faction data from Archives of Nethys. Build minimum viable lore filter to prevent ecologically impossible combinations."},
+  {phase:"2E",action:"User testing with real GMs",detail:"Test mockups with 5–10 GMs across all three segments. Observe input form completion, trust in difficulty label, and educational value of lore rationale."},
+  {phase:"2F",action:"Map generation technical spike",detail:"Evaluate procedural, tile-based, and SVG approaches against functional accuracy requirements for five environment types."},
+  {phase:"2G",action:"Define freemium tier boundary",detail:"Validate the proposed 5 free/month → $5–7/month paid model against willingness-to-pay in testing sessions."},
+];
+const tl=document.getElementById('timeline');
+steps.forEach(s=>{
+  tl.innerHTML+=`<div class="tl-item"><div class="tl-dot"></div><div class="tl-phase">${s.phase}</div><div class="tl-action">${s.action}</div><div class="tl-detail">${s.detail}</div></div>`;
+});
+</script>
